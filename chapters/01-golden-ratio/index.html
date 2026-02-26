@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Золотое сечение — Математика вокруг нас</title>
+  <meta name="description" content="Золотое сечение и числа Фибоначчи: интерактивное исследование φ в природе, искусстве и математике.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+3:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.css">
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/animations.css">
+  <link rel="stylesheet" href="../../css/components.css">
+
+  <style>
+    /* Chapter-specific overrides */
+    .chapter-hero {
+      position: relative;
+      min-height: 60vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: var(--gradient-hero);
+      overflow: hidden;
+      padding: var(--space-3xl) var(--space-md);
+    }
+    .chapter-hero__number {
+      font-family: var(--font-mono);
+      font-size: clamp(4rem, 15vw, 10rem);
+      font-weight: 700;
+      color: var(--accent-amber);
+      opacity: 0.12;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      line-height: 1;
+      pointer-events: none;
+    }
+    .chapter-hero__content {
+      position: relative;
+      z-index: 1;
+      max-width: 700px;
+    }
+    .chapter-hero__title {
+      font-family: var(--font-heading);
+      font-size: var(--fs-4xl);
+      color: var(--text-primary);
+      margin-bottom: var(--space-md);
+    }
+    .chapter-hero__subtitle {
+      font-size: var(--fs-lg);
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    @media (min-width: 768px) {
+      .chapter-hero__title { font-size: var(--fs-5xl); }
+    }
+
+    /* Scrollytelling layout — mobile-first stacked */
+    .scroll-section {
+      display: block;
+    }
+    .scroll-section__visual {
+      width: 100%;
+      height: 60vh;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    .scroll-section__narrative {
+      position: relative;
+      z-index: 2;
+    }
+    @media (min-width: 1024px) {
+      .scroll-section {
+        display: flex;
+      }
+      .scroll-section__visual {
+        flex: 1 1 55%;
+        height: 100vh;
+      }
+      .scroll-section__narrative {
+        flex: 1 1 45%;
+      }
+    }
+
+    /* Phi list section */
+    .phi-applications {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-lg);
+    }
+    .phi-app-card {
+      display: flex;
+      gap: var(--space-lg);
+      align-items: flex-start;
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .phi-app-card__icon {
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-md);
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--accent-amber);
+    }
+    .phi-app-card__icon svg {
+      width: 24px;
+      height: 24px;
+    }
+    .phi-app-card h4 {
+      font-size: var(--fs-base);
+      margin-bottom: var(--space-xs);
+    }
+    .phi-app-card p {
+      font-size: var(--fs-sm);
+      margin: 0;
+    }
+    @media (min-width: 768px) {
+      .phi-applications { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* Proportion checker readout */
+    .proportion-readout {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-2xl);
+      flex-wrap: wrap;
+      margin-top: var(--space-md);
+    }
+    .proportion-readout__item {
+      text-align: center;
+    }
+    .proportion-readout__value {
+      font-family: var(--font-mono);
+      font-size: var(--fs-2xl);
+      color: var(--text-primary);
+      display: block;
+    }
+    .proportion-readout__label {
+      font-size: var(--fs-sm);
+      color: var(--text-muted);
+    }
+    .proportion-readout__item.is-golden .proportion-readout__value {
+      color: var(--accent-amber);
+    }
+
+    /* Golden message */
+    .golden-message {
+      text-align: center;
+      font-family: var(--font-heading);
+      font-size: var(--fs-xl);
+      color: var(--accent-amber);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      margin-top: var(--space-sm);
+    }
+    .golden-message.is-visible {
+      opacity: 1;
+    }
+
+    /* Teaser */
+    .teaser {
+      text-align: center;
+      padding: var(--space-3xl) var(--space-md);
+    }
+    .teaser__text {
+      font-family: var(--font-heading);
+      font-size: var(--fs-xl);
+      color: var(--text-secondary);
+      font-style: italic;
+      max-width: 600px;
+      margin: 0 auto var(--space-2xl);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Progress bar -->
+  <div class="progress-bar" aria-hidden="true">
+    <div class="progress-bar__fill"></div>
+  </div>
+
+  <!-- Nav sidebar -->
+  <nav class="nav-sidebar" id="sidebar">
+    <p class="nav-sidebar__title">Содержание</p>
+    <ul class="nav-sidebar__list">
+      <li><a href="#hero" class="nav-sidebar__link is-active">Введение</a></li>
+      <li><a href="#scrollytelling" class="nav-sidebar__link">Золотое сечение в природе</a></li>
+      <li><a href="#spiral-interactive" class="nav-sidebar__link">Спираль Фибоначчи</a></li>
+      <li><a href="#math" class="nav-sidebar__link">Математика φ</a></li>
+      <li><a href="#proportion-check" class="nav-sidebar__link">Проверь пропорции</a></li>
+      <li><a href="#applications" class="nav-sidebar__link">Где встречается φ</a></li>
+      <li><a href="#next" class="nav-sidebar__link">Далее</a></li>
+    </ul>
+  </nav>
+  <button class="nav-sidebar__toggle" aria-label="Открыть навигацию">☰</button>
+
+  <main>
+
+    <!-- ======================== HERO ======================== -->
+    <section class="chapter-hero" id="hero">
+      <div class="chapter-hero__number">01</div>
+      <div class="chapter-hero__content">
+        <h1 class="chapter-hero__title fade-in-up">Золотое сечение и числа Фибоначчи</h1>
+        <p class="chapter-hero__subtitle fade-in-up">
+          Как одно число связывает подсолнухи, раковины, галактики и шедевры архитектуры
+        </p>
+      </div>
+    </section>
+
+    <!-- ======================== SECTION 1: Scrollytelling ======================== -->
+    <section class="scroll-section" id="scrollytelling">
+      <div class="scroll-section__visual">
+        <div class="viz-container" id="viz-scrollytelling">
+          <svg id="svg-main"></svg>
+        </div>
+      </div>
+
+      <div class="scroll-section__narrative">
+
+        <!-- Step 1: Sunflower -->
+        <div class="story-step" data-step="1">
+          <div class="story-step__content">
+            <h3>Спирали подсолнуха</h3>
+            <p>Представьте подсолнух. Его семечки расположены не хаотично — они образуют спирали. Причём количество спиралей по и против часовой стрелки — всегда соседние числа Фибоначчи: 21 и 34, или 34 и 55.</p>
+          </div>
+        </div>
+
+        <!-- Step 2: Fibonacci sequence -->
+        <div class="story-step" data-step="2">
+          <div class="story-step__content">
+            <h3>Последовательность Фибоначчи</h3>
+            <p>Эту закономерность открыли ещё в XIII веке. Леонардо Пизанский (Фибоначчи) описал последовательность 1, 1, 2, 3, 5, 8, 13, 21, 34, 55… — где каждое число равно сумме двух предыдущих.</p>
+          </div>
+        </div>
+
+        <!-- Step 3: Ratio convergence -->
+        <div class="story-step" data-step="3">
+          <div class="story-step__content">
+            <h3>Сходимость к φ</h3>
+            <p>Разделите любое число Фибоначчи на предыдущее — и вы получите значение, всё ближе к загадочному числу φ&nbsp;≈&nbsp;1,618… Это и есть <strong>золотое сечение</strong>.</p>
+          </div>
+        </div>
+
+        <!-- Step 4: Golden rectangles -->
+        <div class="story-step" data-step="4">
+          <div class="story-step__content">
+            <h3>Золотой прямоугольник</h3>
+            <p>Золотой прямоугольник — его стороны относятся как 1&nbsp;:&nbsp;φ. Если отрезать от него квадрат, оставшийся прямоугольник снова будет золотым. И так до бесконечности.</p>
+          </div>
+        </div>
+
+        <!-- Step 5: Spiral -->
+        <div class="story-step" data-step="5">
+          <div class="story-step__content">
+            <h3>Спираль Фибоначчи</h3>
+            <p>Вписав в эти прямоугольники четверти окружностей, получим спираль Фибоначчи — ту самую, что мы видим в раковинах наутилуса и рукавах галактик.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======================== SECTION 2: Spiral Interactive ======================== -->
+    <section class="section container" id="spiral-interactive">
+      <div class="content-wide">
+        <div class="interactive-widget fade-in-up">
+          <div class="interactive-widget__header">
+            <div>
+              <h3 class="interactive-widget__title">Спираль Фибоначчи</h3>
+              <p class="interactive-widget__desc">Двигайте слайдер, чтобы увидеть, как спираль строится шаг за шагом</p>
+            </div>
+            <span class="interactive-widget__badge">Интерактив</span>
+          </div>
+          <div class="interactive-widget__canvas" id="spiral-canvas"></div>
+          <div class="interactive-widget__controls">
+            <div class="widget-slider">
+              <label class="widget-slider__label" for="spiral-steps">Количество шагов:</label>
+              <input type="range" id="spiral-steps" min="3" max="15" value="8" step="1">
+              <span class="widget-slider__value" id="spiral-steps-value">8</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================== SECTION 3: Math ======================== -->
+    <section class="section container" id="math">
+      <div class="content-narrow">
+        <h2 class="section-title fade-in-up">Математика золотого сечения</h2>
+
+        <div class="fade-in-up">
+          <p>Золотое сечение — это деление отрезка на две части так, что отношение большей части к меньшей равно отношению всего отрезка к большей части. Это отношение обозначают греческой буквой <strong>φ</strong> (фи):</p>
+
+          <div class="math-block">
+            $$\varphi = \frac{1 + \sqrt{5}}{2} \approx 1{,}6180339\ldots$$
+          </div>
+
+          <p>Число φ — это положительный корень квадратного уравнения:</p>
+
+          <div class="math-block">
+            $$x^2 - x - 1 = 0$$
+          </div>
+
+          <p>Из этого уравнения следует удивительное свойство:</p>
+        </div>
+
+        <div class="callout-box callout-box--question fade-in-up">
+          <p class="callout-box__title">Подумайте</p>
+          <p>Попробуйте проверить: $\varphi^2 = \varphi + 1$. То есть, чтобы возвести φ в квадрат, достаточно прибавить единицу! Какое ещё число обладает таким свойством?</p>
+        </div>
+
+        <div class="fade-in-up">
+          <p>Числа Фибоначчи определяются рекуррентным соотношением:</p>
+
+          <div class="math-block">
+            $$F_n = F_{n-1} + F_{n-2}, \quad F_1 = 1,\; F_2 = 1$$
+          </div>
+
+          <p>Замечательная связь между числами Фибоначчи и золотым сечением:</p>
+
+          <div class="math-block math-block--highlighted">
+            <span class="math-block__label">Теорема</span>
+            $$\lim_{n \to \infty} \frac{F_{n+1}}{F_n} = \varphi$$
+          </div>
+
+          <p>Чем дальше мы идём по последовательности, тем ближе отношение соседних чисел к φ. Уже для $F_{10}/F_9 = 89/55 \approx 1{,}6181$ — отличие от φ составляет менее 0,01%.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================== SECTION 4: Proportion Checker ======================== -->
+    <section class="section container" id="proportion-check">
+      <div class="content-wide">
+        <div class="interactive-widget fade-in-up">
+          <div class="interactive-widget__header">
+            <div>
+              <h3 class="interactive-widget__title">Проверь пропорции</h3>
+              <p class="interactive-widget__desc">Перетаскивайте разделитель, чтобы найти золотое сечение</p>
+            </div>
+            <span class="interactive-widget__badge">Интерактив</span>
+          </div>
+          <div class="interactive-widget__canvas" id="proportion-canvas" style="min-height: 180px;"></div>
+          <div class="proportion-readout" id="proportion-readout">
+            <div class="proportion-readout__item" id="readout-ab">
+              <span class="proportion-readout__value">—</span>
+              <span class="proportion-readout__label">a / b</span>
+            </div>
+            <div class="proportion-readout__item" id="readout-total">
+              <span class="proportion-readout__value">—</span>
+              <span class="proportion-readout__label">(a + b) / a</span>
+            </div>
+            <div class="proportion-readout__item" id="readout-phi">
+              <span class="proportion-readout__value">φ ≈ 1,618</span>
+              <span class="proportion-readout__label">Цель</span>
+            </div>
+          </div>
+          <div class="golden-message" id="golden-message">✦ Золотое сечение! ✦</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================== SECTION 5: Applications ======================== -->
+    <section class="section container" id="applications">
+      <div class="content-wide">
+        <h2 class="section-title fade-in-up">Где ещё встречается φ</h2>
+
+        <div class="phi-applications">
+
+          <div class="phi-app-card fade-in-up">
+            <div class="phi-app-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="12" rx="1"/><line x1="14" y1="19" x2="21" y2="19"/>
+              </svg>
+            </div>
+            <div>
+              <h4>Архитектура</h4>
+              <p>Пропорции Парфенона, пирамиды Хеопса и здания ООН приближены к золотому сечению. Архитекторы используют φ для создания гармоничных форм.</p>
+            </div>
+          </div>
+
+          <div class="phi-app-card fade-in-up">
+            <div class="phi-app-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="2"/><path d="M7 12c0-3 2-7 5-7s5 4 5 7-2 7-5 7-5-4-5-7z"/>
+              </svg>
+            </div>
+            <div>
+              <h4>Живопись</h4>
+              <p>Леонардо да Винчи использовал золотое сечение в «Моне Лизе» и «Витрувианском человеке». Сальвадор Дали написал «Тайную вечерю» в золотом прямоугольнике.</p>
+            </div>
+          </div>
+
+          <div class="phi-app-card fade-in-up">
+            <div class="phi-app-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+              </svg>
+            </div>
+            <div>
+              <h4>Музыка</h4>
+              <p>Бартокусу и Дебюсси приписывают использование φ для определения кульминации произведений. Октава делится на 13 полутонов — число Фибоначчи.</p>
+            </div>
+          </div>
+
+          <div class="phi-app-card fade-in-up">
+            <div class="phi-app-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><path d="M12 2C6.5 2 2 6.5 2 12"/><path d="M2 12c0 5.5 4.5 10 10 10"/>
+              </svg>
+            </div>
+            <div>
+              <h4>Дизайн логотипов</h4>
+              <p>Логотипы Apple, Twitter и Toyota построены на окружностях, радиусы которых относятся как числа Фибоначчи. Это создаёт визуальную гармонию.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="callout-box callout-box--info fade-in-up" style="margin-top: var(--space-2xl);">
+          <p class="callout-box__title">Интересный факт</p>
+          <p>Золотое сечение — одна из тех математических констант, которые связывают природу, искусство и науку в единое целое. Число φ возникает везде, где есть самоподобие и рекурсия — от расположения листьев на стебле до алгоритмов поиска.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================== SECTION 6: Teaser + Nav ======================== -->
+    <section class="section" id="next">
+      <div class="teaser">
+        <p class="teaser__text fade-in-up">
+          В следующей главе мы увидим, как бесконечность может скрываться в конечных фигурах…
+        </p>
+      </div>
+
+      <div class="container">
+        <nav class="chapter-nav">
+          <a href="../../index.html" class="chapter-nav__link chapter-nav__link--prev">
+            <span class="chapter-nav__label">Назад</span>
+            <span class="chapter-nav__title">Главная</span>
+          </a>
+          <a href="../02-fractals/index.html" class="chapter-nav__link chapter-nav__link--next">
+            <span class="chapter-nav__label">Далее</span>
+            <span class="chapter-nav__title">Глава 2: Фракталы</span>
+          </a>
+        </nav>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======================== FOOTER ======================== -->
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <div>
+        <p class="site-footer__title">Математика вокруг нас</p>
+        <p class="site-footer__text">Образовательный проект о математике в повседневной жизни и её роли в современных технологиях.</p>
+      </div>
+      <div class="site-footer__links">
+        <a href="../../index.html" class="site-footer__link">Оглавление</a>
+        <a href="https://github.com/mlnchkdv/math-around-us" class="site-footer__link" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- CDN Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14/dist/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14/dist/ScrollTrigger.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/contrib/auto-render.min.js" defer></script>
+
+  <!-- Site Scripts -->
+  <script src="../../js/utils.js" defer></script>
+  <script src="../../js/core.js" defer></script>
+  <script src="viz.js" defer></script>
+
+</body>
+</html>
