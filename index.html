@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Математика вокруг нас — от закономерностей к нейросетям</title>
+  <meta name="description" content="Интерактивный образовательный курс: математика повседневности, основы для ML, нейронные сети и глубокое обучение.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+3:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.css">
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+  <!-- Progress bar -->
+  <div class="progress-bar" aria-hidden="true">
+    <div class="progress-bar__fill"></div>
+  </div>
+
+  <!-- ======================== HERO ======================== -->
+  <section class="hero" id="hero">
+    <div class="hero__canvas">
+      <canvas></canvas>
+      <div class="hero__shimmer"></div>
+    </div>
+
+    <div class="hero__content">
+      <h1 class="hero__title">Математика вокруг нас</h1>
+      <p class="hero__subtitle">
+        От повседневных закономерностей — к нейронным сетям и искусственному интеллекту
+      </p>
+      <div class="hero__cta">
+        <a href="#chapters" class="btn btn-primary">Начать путешествие →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== CHAPTERS ======================== -->
+  <main class="container" id="chapters">
+
+    <!-- Блок 1: Математика в повседневности -->
+    <section class="chapters-section fade-in-up">
+      <h2 class="chapters-section__title">Математика в повседневности</h2>
+      <p class="chapters-section__subtitle">Как числа и формулы прячутся в окружающем мире</p>
+
+      <div class="grid grid-4">
+
+        <a href="chapters/01-golden-ratio/index.html" class="chapter-card" data-accent="amber">
+          <span class="chapter-card__number">Глава 01</span>
+          <h3 class="chapter-card__title">Золотое сечение и числа Фибоначчи</h3>
+          <p class="chapter-card__desc">Почему подсолнухи, раковины и галактики подчиняются одной пропорции — и как это связано с числами Фибоначчи.</p>
+          <span class="chapter-card__arrow">Читать →</span>
+        </a>
+
+        <a href="chapters/02-fractals/index.html" class="chapter-card" data-accent="cyan">
+          <span class="chapter-card__number">Глава 02</span>
+          <h3 class="chapter-card__title">Фракталы — бесконечность в конечном</h3>
+          <p class="chapter-card__desc">Самоподобие в природе: от папоротников до береговых линий. Строим фракталы и измеряем их дробную размерность.</p>
+          <span class="chapter-card__arrow">Читать →</span>
+        </a>
+
+        <a href="chapters/03-probability/index.html" class="chapter-card" data-accent="emerald">
+          <span class="chapter-card__number">Глава 03</span>
+          <h3 class="chapter-card__title">Вероятность — математика случайности</h3>
+          <p class="chapter-card__desc">Парадоксы интуиции, закон больших чисел и нормальное распределение — почему случайность предсказуема.</p>
+          <span class="chapter-card__arrow">Читать →</span>
+        </a>
+
+        <a href="chapters/04-graphs/index.html" class="chapter-card" data-accent="blue">
+          <span class="chapter-card__number">Глава 04</span>
+          <h3 class="chapter-card__title">Теория графов — связи вокруг нас</h3>
+          <p class="chapter-card__desc">Социальные сети, маршруты навигаторов и головоломки Эйлера — всё это теория графов в действии.</p>
+          <span class="chapter-card__arrow">Читать →</span>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- Блок 2: Мост к машинному обучению -->
+    <section class="chapters-section fade-in-up">
+      <h2 class="chapters-section__title">Мост к машинному обучению</h2>
+      <p class="chapters-section__subtitle">Математический фундамент, на котором строится AI</p>
+
+      <div class="grid grid-3">
+
+        <a href="chapters/05-optimization/index.html" class="chapter-card" data-accent="rose">
+          <span class="chapter-card__number">Глава 05</span>
+          <h3 class="chapter-card__title">Оптимизация</h3>
+          <p class="chapter-card__desc">Градиентный спуск, поиск минимумов и максимумов — как машины учатся находить лучшие решения.</p>
+          <span class="chapter-card__arrow">Читать →</span>
+        </a>
+
+        <a href="chapters/06-linear-algebra/index.html" class="chapter-card" data-accent="violet">
+          <span class="chapter-card__number">Глава 06</span>
+          <h3 class="chapter-card__title">Линейная алгебра</h3>
+          <p class="chapter-card__desc">Векторы, матрицы и линейные преобразования — язык, на котором «думают» нейронные сети.</p>
+          <span class="chapter-card__arrow">Читать →</span>
+        </a>
+
+        <a href="chapters/07-calculus-for-ml/index.html" class="chapter-card" data-accent="blue">
+          <span class="chapter-card__number">Глава 07</span>
+          <h3 class="chapter-card__title">Мат. анализ для ML</h3>
+          <p class="chapter-card__desc">Производные, частные производные и цепное правило — механизм обратного распространения ошибки.</p>
+          <span class="chapter-card__arrow">Читать →</span>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- Блок 3: Машинное обучение и нейросети -->
+    <section class="chapters-section fade-in-up">
+      <h2 class="chapters-section__title">Машинное обучение и нейросети</h2>
+      <p class="chapters-section__subtitle">От простых моделей к глубокому обучению</p>
+
+      <div class="grid grid-3">
+
+        <a href="chapters/08-intro-ml/index.html" class="chapter-card" data-accent="emerald">
+          <span class="chapter-card__number">Глава 08</span>
+          <h3 class="chapter-card__title">Введение в ML</h3>
+          <p class="chapter-card__desc">Что такое машинное обучение, как работает регрессия и классификация, и зачем нужны данные.</p>
+          <span class="chapter-card__arrow">Читать →</span>
+        </a>
+
+        <a href="chapters/09-neural-networks/index.html" class="chapter-card" data-accent="violet">
+          <span class="chapter-card__number">Глава 09</span>
+          <h3 class="chapter-card__title">Нейронные сети</h3>
+          <p class="chapter-card__desc">Перцептрон, многослойные сети и функции активации — как математика имитирует работу мозга.</p>
+          <span class="chapter-card__arrow">Читать →</span>
+        </a>
+
+        <a href="chapters/10-deep-learning/index.html" class="chapter-card" data-accent="rose">
+          <span class="chapter-card__number">Глава 10</span>
+          <h3 class="chapter-card__title">Глубокое обучение и AI</h3>
+          <p class="chapter-card__desc">Свёрточные сети, трансформеры и современный AI — от распознавания образов до генерации текста.</p>
+          <span class="chapter-card__arrow">Читать →</span>
+        </a>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======================== FOOTER ======================== -->
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <div>
+        <p class="site-footer__title">Математика вокруг нас</p>
+        <p class="site-footer__text">
+          Образовательный проект о математике в повседневной жизни и её роли в современных технологиях искусственного интеллекта.
+        </p>
+      </div>
+      <div class="site-footer__links">
+        <a href="#chapters" class="site-footer__link">Оглавление</a>
+        <a href="https://github.com/mlnchkdv/math-around-us" class="site-footer__link" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- CDN Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14/dist/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14/dist/ScrollTrigger.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/contrib/auto-render.min.js" defer></script>
+
+  <!-- Site Scripts -->
+  <script src="js/utils.js" defer></script>
+  <script src="js/core.js" defer></script>
+
+</body>
+</html>

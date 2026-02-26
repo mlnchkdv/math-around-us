@@ -1,0 +1,250 @@
+/* ============================================================
+   ANIMATIONS.CSS — Анимации «Математика вокруг нас»
+   GSAP-классы · Keyframes · Hover · D3-transitions
+   ============================================================ */
+
+/* --- GSAP animation helper classes --- */
+
+/* Элементы, ожидающие анимации через GSAP — скрыты по умолчанию */
+.fade-in-up,
+.fade-in-left,
+.scale-in,
+.reveal-text {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.fade-in-up {
+  transform: translateY(40px);
+}
+
+.fade-in-left {
+  transform: translateX(-40px);
+}
+
+.scale-in {
+  transform: scale(0.85);
+}
+
+.reveal-text {
+  clip-path: inset(0 100% 0 0);
+}
+
+/* Состояние после анимации (GSAP выставит эти значения, но fallback для no-JS) */
+.fade-in-up.is-visible,
+.fade-in-left.is-visible,
+.scale-in.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.reveal-text.is-visible {
+  opacity: 1;
+  clip-path: inset(0 0 0 0);
+}
+
+/* --- Scroll progress bar --- */
+.progress-bar__fill {
+  will-change: width;
+  transform-origin: left center;
+}
+
+/* --- Chapter card hover --- */
+.chapter-card {
+  will-change: transform;
+}
+
+.chapter-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+
+.chapter-card:active {
+  transform: translateY(-2px);
+}
+
+/* Цветное свечение при наведении */
+.chapter-card[data-accent="amber"]:hover {
+  border-color: var(--accent-amber);
+  box-shadow: 0 8px 30px rgba(245, 158, 11, 0.15);
+}
+.chapter-card[data-accent="cyan"]:hover {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 8px 30px rgba(6, 182, 212, 0.15);
+}
+.chapter-card[data-accent="emerald"]:hover {
+  border-color: var(--accent-emerald);
+  box-shadow: 0 8px 30px rgba(16, 185, 129, 0.15);
+}
+.chapter-card[data-accent="blue"]:hover {
+  border-color: var(--accent-blue);
+  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.15);
+}
+.chapter-card[data-accent="rose"]:hover {
+  border-color: var(--accent-rose);
+  box-shadow: 0 8px 30px rgba(244, 63, 94, 0.15);
+}
+.chapter-card[data-accent="violet"]:hover {
+  border-color: var(--accent-violet);
+  box-shadow: 0 8px 30px rgba(139, 92, 246, 0.15);
+}
+
+/* --- D3 / SVG transition helpers --- */
+.d3-enter {
+  opacity: 0;
+  transition: opacity var(--transition-base), transform var(--transition-base);
+}
+
+.d3-enter.is-visible {
+  opacity: 1;
+}
+
+.d3-path {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  transition: stroke-dashoffset 1.5s ease;
+}
+
+.d3-path.is-drawn {
+  stroke-dashoffset: 0;
+}
+
+.d3-node {
+  transition: r var(--transition-fast),
+              fill var(--transition-fast),
+              opacity var(--transition-base);
+}
+
+.d3-node:hover {
+  filter: brightness(1.3);
+}
+
+/* --- Hero background: floating math symbols --- */
+@keyframes float-symbol {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.15;
+  }
+  90% {
+    opacity: 0.15;
+  }
+  100% {
+    transform: translateY(-100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes drift-horizontal {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(30px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.4;
+    filter: blur(0px);
+  }
+  50% {
+    opacity: 0.7;
+    filter: blur(2px);
+  }
+}
+
+/* Hero canvas overlay shimmer */
+@keyframes hero-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.hero__shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(139, 92, 246, 0.03) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: hero-shimmer 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* --- Interactive widget pulse --- */
+@keyframes widget-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
+  }
+}
+
+.interactive-widget:focus-within {
+  animation: widget-pulse 2s ease infinite;
+}
+
+/* --- Loading spinner --- */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--bg-card);
+  border-top-color: var(--accent-blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* --- Stagger children helper (used with GSAP but CSS fallback) --- */
+.stagger-children > * {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.stagger-children.is-visible > * {
+  opacity: 1;
+  transform: none;
+  transition: opacity var(--transition-slow), transform var(--transition-slow);
+}
+
+.stagger-children.is-visible > *:nth-child(1) { transition-delay: 0ms; }
+.stagger-children.is-visible > *:nth-child(2) { transition-delay: 100ms; }
+.stagger-children.is-visible > *:nth-child(3) { transition-delay: 200ms; }
+.stagger-children.is-visible > *:nth-child(4) { transition-delay: 300ms; }
+.stagger-children.is-visible > *:nth-child(5) { transition-delay: 400ms; }
+.stagger-children.is-visible > *:nth-child(6) { transition-delay: 500ms; }
+.stagger-children.is-visible > *:nth-child(7) { transition-delay: 600ms; }
+.stagger-children.is-visible > *:nth-child(8) { transition-delay: 700ms; }
+.stagger-children.is-visible > *:nth-child(9) { transition-delay: 800ms; }
+.stagger-children.is-visible > *:nth-child(10) { transition-delay: 900ms; }
+
+/* --- Reduced motion override --- */
+@media (prefers-reduced-motion: reduce) {
+  .fade-in-up,
+  .fade-in-left,
+  .scale-in,
+  .reveal-text,
+  .stagger-children > * {
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+  }
+
+  .hero__shimmer {
+    animation: none;
+  }
+}
