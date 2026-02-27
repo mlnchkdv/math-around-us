@@ -65,9 +65,10 @@
     this.layers.spiral = this.svg.append('g').attr('class', 'layer-spiral');
 
     // Hide all layers initially
+    var self = this;
     Object.keys(this.layers).forEach(function (key) {
-      this.layers[key].style('opacity', 0).style('display', 'none');
-    }.bind(this));
+      self.layers[key].style('opacity', 0).style('display', 'none');
+    });
 
     // Show step 1 by default
     this.goToStep(1);
@@ -79,15 +80,12 @@
     if (step === this.currentStep) return;
     this.currentStep = step;
 
-    // Hide all layers
     var self = this;
+
+    // Immediately hide all layers — cancel any running transitions first
     Object.keys(this.layers).forEach(function (key) {
-      self.layers[key]
-        .transition().duration(400)
-        .style('opacity', 0)
-        .on('end', function () {
-          d3.select(this).style('display', 'none');
-        });
+      self.layers[key].interrupt();
+      self.layers[key].style('opacity', 0).style('display', 'none');
     });
 
     // Show appropriate layer
@@ -105,8 +103,6 @@
     var layer = this.layers.sunflower;
     var numSeeds = 300;
     var scale = 11;
-    var amber = getCSSVar('--accent-amber') || '#f59e0b';
-    var cyan = getCSSVar('--accent-cyan') || '#06b6d4';
 
     layer.selectAll('*').remove();
     layer.style('display', 'block');
@@ -166,7 +162,7 @@
     var layer = this.layers.fibonacci;
     var w = this.width;
     var h = this.height;
-    var fib = fibSequence(12);
+    var fib = fibSequence(10);
     var amber = getCSSVar('--accent-amber') || '#f59e0b';
     var textPrimary = getCSSVar('--text-primary') || '#e8eaf0';
     var textMuted = getCSSVar('--text-muted') || '#64748b';
@@ -174,9 +170,11 @@
     layer.selectAll('*').remove();
     layer.style('display', 'block');
 
-    var boxWidth = 60;
+    // Auto-size boxes to fit viewBox
     var gap = 8;
-    var totalW = fib.length * (boxWidth + gap);
+    var boxWidth = Math.floor((w - 80 - gap * (fib.length - 1)) / fib.length);
+    boxWidth = Math.min(boxWidth, 65);
+    var totalW = fib.length * boxWidth + (fib.length - 1) * gap;
     var startX = (w - totalW) / 2;
     var centerY = h / 2;
 
@@ -403,9 +401,7 @@
     var layer = this.layers.rectangles;
     var w = this.width;
     var h = this.height;
-    var amber = getCSSVar('--accent-amber') || '#f59e0b';
     var textPrimary = getCSSVar('--text-primary') || '#e8eaf0';
-    var textMuted = getCSSVar('--text-muted') || '#64748b';
 
     layer.selectAll('*').remove();
     layer.style('display', 'block');
@@ -471,6 +467,7 @@
 
   /* --- Step 5: Fibonacci spiral --- */
   GoldenRatioViz.prototype.step5_spiral = function () {
+    var self = this;
     var layer = this.layers.spiral;
     var w = this.width;
     var h = this.height;
@@ -482,9 +479,9 @@
 
     var fib = fibSequence(10);
     var scale = 0.7;
-    var rects = this._computeGoldenRects(fib, scale);
+    var rects = self._computeGoldenRects(fib, scale);
 
-    var bounds = this._getRectsBounds(rects);
+    var bounds = self._getRectsBounds(rects);
     var offsetX = (w - (bounds.maxX - bounds.minX)) / 2 - bounds.minX;
     var offsetY = (h - (bounds.maxY - bounds.minY)) / 2 - bounds.minY;
 
@@ -505,15 +502,8 @@
         .attr('opacity', 0.3);
     });
 
-    // Draw spiral arcs
-    var spiralPath = '';
-    rects.forEach(function (rect, i) {
-      var arc = self._computeArc(rect, i);
-      spiralPath += arc;
-    });
-
-    var self = this;
-    var pathData = this._buildSpiralPathData(rects);
+    // Build spiral path using the shared helper
+    var pathData = self._buildSpiralPathData(rects);
 
     var spiralLine = g.append('path')
       .attr('d', pathData)
@@ -816,7 +806,7 @@
     if (!this.container) return;
 
     this.width = 800;
-    this.height = 160;
+    this.height = 180;
     this.margin = { left: 40, right: 40 };
     this.svg = null;
     this.dividerX = 0;
@@ -832,11 +822,9 @@
     var mr = this.margin.right;
     var barWidth = w - ml - mr;
     var barY = 40;
-    var barH = 36;
+    var barH = 40;
 
-    // Initial divider at golden ratio position
-    this.dividerX = ml + barWidth / PHI;
-    // Offset a bit so user has to find it
+    // Initial divider at 50% (user has to find golden ratio)
     this.dividerX = ml + barWidth * 0.5;
 
     this.svg = d3.select(this.container)
@@ -845,7 +833,10 @@
       .attr('preserveAspectRatio', 'xMidYMid meet')
       .style('width', '100%')
       .style('height', '100%')
-      .style('cursor', 'default');
+      .style('cursor', 'default')
+      .style('touch-action', 'none')
+      .style('user-select', 'none')
+      .style('-webkit-user-select', 'none');
 
     var amber = getCSSVar('--accent-amber') || '#f59e0b';
     var blue = getCSSVar('--accent-blue') || '#3b82f6';
@@ -883,6 +874,7 @@
       .attr('font-family', 'JetBrains Mono, monospace')
       .attr('font-size', '16px')
       .attr('font-weight', '500')
+      .attr('pointer-events', 'none')
       .text('a');
 
     this.labelB = this.svg.append('text')
@@ -893,35 +885,49 @@
       .attr('font-family', 'JetBrains Mono, monospace')
       .attr('font-size', '16px')
       .attr('font-weight', '500')
+      .attr('pointer-events', 'none')
       .text('b');
 
-    // Divider handle
+    // Divider handle — larger hit area for touch
     this.divider = this.svg.append('g')
       .attr('class', 'divider-handle')
       .style('cursor', 'ew-resize');
 
+    // Invisible larger touch target
     this.divider.append('rect')
-      .attr('x', -12)
+      .attr('x', -24)
+      .attr('y', barY - 16)
+      .attr('width', 48)
+      .attr('height', barH + 32)
+      .attr('fill', 'transparent');
+
+    // Visible handle
+    this.divider.append('rect')
+      .attr('x', -14)
       .attr('y', barY - 8)
-      .attr('width', 24)
+      .attr('width', 28)
       .attr('height', barH + 16)
       .attr('rx', 6)
       .attr('fill', textPrimary)
       .attr('opacity', 0.9);
 
     this.divider.append('line')
-      .attr('x1', -3).attr('x2', -3)
-      .attr('y1', barY).attr('y2', barY + barH)
+      .attr('x1', -4).attr('x2', -4)
+      .attr('y1', barY + 2).attr('y2', barY + barH - 2)
       .attr('stroke', bgCard).attr('stroke-width', 1.5);
     this.divider.append('line')
-      .attr('x1', 3).attr('x2', 3)
-      .attr('y1', barY).attr('y2', barY + barH)
+      .attr('x1', 0).attr('x2', 0)
+      .attr('y1', barY + 2).attr('y2', barY + barH - 2)
+      .attr('stroke', bgCard).attr('stroke-width', 1.5);
+    this.divider.append('line')
+      .attr('x1', 4).attr('x2', 4)
+      .attr('y1', barY + 2).attr('y2', barY + barH - 2)
       .attr('stroke', bgCard).attr('stroke-width', 1.5);
 
     this.divider.attr('transform', 'translate(' + this.dividerX + ', 0)');
 
     // Scale below
-    var scaleY = barY + barH + 30;
+    var scaleY = barY + barH + 35;
     var scaleGroup = this.svg.append('g');
 
     // Tick marks from 1.0 to 2.0
@@ -958,18 +964,40 @@
     // Ratio indicator on scale
     this.ratioIndicator = this.svg.append('circle')
       .attr('cy', scaleY)
-      .attr('r', 5)
+      .attr('r', 6)
       .attr('fill', textPrimary);
 
-    // D3 drag
+    // D3 drag — use pointer coordinates from the SVG element
+    var svgNode = this.svg.node();
     var drag = d3.drag()
+      .on('start', function () {
+        d3.select(this).style('cursor', 'grabbing');
+      })
       .on('drag', function (event) {
-        var newX = Math.max(ml + 30, Math.min(ml + barWidth - 30, event.x));
+        // Use d3.pointer to get coordinates in SVG viewBox space
+        var pointer = d3.pointer(event, svgNode);
+        var newX = Math.max(ml + 30, Math.min(ml + barWidth - 30, pointer[0]));
         self.dividerX = newX;
         self.update();
+      })
+      .on('end', function () {
+        d3.select(this).style('cursor', 'ew-resize');
       });
 
     this.divider.call(drag);
+
+    // Also allow clicking/tapping anywhere on the bar to reposition
+    this.svg.on('click', function (event) {
+      var pointer = d3.pointer(event, svgNode);
+      var px = pointer[0];
+      var py = pointer[1];
+      // Only handle clicks on the bar area (not on the scale)
+      if (py >= barY - 10 && py <= barY + barH + 10 && px >= ml && px <= ml + barWidth) {
+        var newX = Math.max(ml + 30, Math.min(ml + barWidth - 30, px));
+        self.dividerX = newX;
+        self.update();
+      }
+    });
 
     // Store references
     this.barWidth = barWidth;
@@ -994,8 +1022,8 @@
 
     // Update positions
     this.divider.attr('transform', 'translate(' + this.dividerX + ', 0)');
-    this.partA.attr('width', a);
-    this.partB.attr('x', this.dividerX).attr('width', b);
+    this.partA.attr('width', Math.max(0, a));
+    this.partB.attr('x', this.dividerX).attr('width', Math.max(0, b));
 
     this.labelA.attr('x', this.ml + a / 2);
     this.labelB.attr('x', this.dividerX + b / 2);

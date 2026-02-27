@@ -65,20 +65,26 @@
       .chapter-hero__title { font-size: var(--fs-5xl); }
     }
 
-    /* Scrollytelling layout — mobile-first stacked */
+    /* Scrollytelling layout — mobile-first stacked
+       Pinning handled by ScrollTrigger in core.js;
+       NO sticky on the wrapper to avoid double-sticky conflict
+       with .viz-container (main.css) + ScrollTrigger pin. */
     .scroll-section {
       display: block;
+      position: relative;
     }
     .scroll-section__visual {
       width: 100%;
-      height: 60vh;
-      position: sticky;
-      top: 0;
-      z-index: 1;
+      /* No position:sticky here — ScrollTrigger pins .viz-container */
     }
     .scroll-section__narrative {
       position: relative;
       z-index: 2;
+    }
+    /* Story-step cards need solid bg to overlay pinned viz on mobile */
+    .scroll-section .story-step__content {
+      background: var(--bg-card);
+      box-shadow: var(--shadow-md);
     }
     @media (min-width: 1024px) {
       .scroll-section {
@@ -86,7 +92,7 @@
       }
       .scroll-section__visual {
         flex: 1 1 55%;
-        height: 100vh;
+        height: auto;
       }
       .scroll-section__narrative {
         flex: 1 1 45%;
@@ -133,6 +139,34 @@
     }
     @media (min-width: 768px) {
       .phi-applications { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* Proportion checker canvas — allow SVG overflow for drag handle,
+       prevent scroll during drag */
+    #proportion-canvas {
+      overflow: visible;
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    #proportion-canvas svg {
+      overflow: visible;
+    }
+
+    /* Spiral interactive canvas */
+    #spiral-canvas {
+      min-height: 250px;
+    }
+
+    /* Slider — larger touch target on mobile */
+    input[type="range"] {
+      height: 8px;
+      min-height: 44px;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      width: 24px;
+      height: 24px;
     }
 
     /* Proportion checker readout */
@@ -356,7 +390,7 @@
             </div>
             <span class="interactive-widget__badge">Интерактив</span>
           </div>
-          <div class="interactive-widget__canvas" id="proportion-canvas" style="min-height: 180px;"></div>
+          <div class="interactive-widget__canvas" id="proportion-canvas"></div>
           <div class="proportion-readout" id="proportion-readout">
             <div class="proportion-readout__item" id="readout-ab">
               <span class="proportion-readout__value">—</span>
