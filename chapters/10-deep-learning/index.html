@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Глубокое обучение — Математика вокруг нас</title>
+  <meta name="description" content="CNN, RNN, Transformer, механизм внимания — как работают современные нейросети и почему математика решает всё.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+3:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.css">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/animations.css">
+  <link rel="stylesheet" href="../../css/components.css">
+
+  <style>
+    .chapter-hero { position: relative; min-height: 60vh; display: flex; align-items: center; justify-content: center; text-align: center; background: var(--gradient-hero); overflow: hidden; padding: var(--space-3xl) var(--space-md); }
+    .chapter-hero__number { font-family: var(--font-mono); font-size: clamp(4rem, 15vw, 10rem); font-weight: 700; color: var(--accent-rose); opacity: 0.12; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); line-height: 1; pointer-events: none; }
+    .chapter-hero__content { position: relative; z-index: 1; max-width: 700px; }
+    .chapter-hero__title { font-family: var(--font-heading); font-size: var(--fs-4xl); color: var(--text-primary); margin-bottom: var(--space-md); }
+    .chapter-hero__subtitle { font-size: var(--fs-lg); color: var(--text-secondary); line-height: 1.6; }
+    @media (min-width: 768px) { .chapter-hero__title { font-size: var(--fs-5xl); } }
+
+    .scroll-section { display: block; position: relative; }
+    .scroll-section__visual { width: 100%; }
+    .scroll-section__narrative { position: relative; z-index: 2; }
+    .scroll-section .story-step__content { background: var(--bg-card); box-shadow: var(--shadow-md); }
+    @media (min-width: 1024px) {
+      .scroll-section { display: flex; }
+      .scroll-section__visual { flex: 1 1 55%; height: auto; }
+      .scroll-section__narrative { flex: 1 1 45%; }
+    }
+
+    /* CNN grid cells */
+    .cnn-grid-wrap { display: flex; gap: var(--space-lg); flex-wrap: wrap; justify-content: center; align-items: flex-start; }
+    .cnn-grid-label { text-align: center; font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--text-secondary); margin-bottom: var(--space-xs); }
+    .cnn-arrow { align-self: center; font-size: var(--fs-2xl); color: var(--text-muted); }
+
+    /* Attention heatmap */
+    .attention-words { display: flex; flex-wrap: wrap; gap: var(--space-xs); margin-bottom: var(--space-sm); }
+    .attention-word { font-family: var(--font-mono); font-size: var(--fs-sm); padding: 2px 6px; border-radius: 4px; cursor: pointer; transition: background var(--transition-fast); }
+    .attention-word:hover, .attention-word.is-highlighted { background: rgba(244, 63, 94, 0.2); }
+
+    /* Conclusion section */
+    .conclusion { text-align: center; padding: var(--space-3xl) var(--space-md); }
+    .conclusion__title { font-family: var(--font-heading); font-size: var(--fs-3xl); color: var(--text-primary); margin-bottom: var(--space-lg); }
+    .conclusion__text { font-size: var(--fs-lg); color: var(--text-secondary); max-width: 650px; margin: 0 auto var(--space-xl); line-height: 1.7; }
+    .conclusion__links { display: flex; flex-wrap: wrap; gap: var(--space-sm); justify-content: center; }
+    .conclusion__link { display: inline-block; padding: var(--space-sm) var(--space-lg); border: 1px solid var(--border-primary); border-radius: var(--radius-md); color: var(--text-primary); text-decoration: none; transition: all var(--transition-fast); font-size: var(--fs-sm); }
+    .conclusion__link:hover { border-color: var(--accent-rose); color: var(--accent-rose); transform: translateY(-2px); }
+
+    .teaser { text-align: center; padding: var(--space-3xl) var(--space-md); }
+    .teaser__text { font-family: var(--font-heading); font-size: var(--fs-xl); color: var(--text-secondary); font-style: italic; max-width: 600px; margin: 0 auto var(--space-2xl); }
+  </style>
+</head>
+<body>
+
+  <div class="progress-bar" aria-hidden="true"><div class="progress-bar__fill"></div></div>
+
+  <nav class="nav-sidebar" id="sidebar">
+    <p class="nav-sidebar__title">Содержание</p>
+    <ul class="nav-sidebar__list">
+      <li><a href="#hero" class="nav-sidebar__link is-active">Введение</a></li>
+      <li><a href="#scrollytelling" class="nav-sidebar__link">История DL</a></li>
+      <li><a href="#cnn" class="nav-sidebar__link">Свёрточные сети</a></li>
+      <li><a href="#math" class="nav-sidebar__link">Математика</a></li>
+      <li><a href="#attention" class="nav-sidebar__link">Внимание</a></li>
+      <li><a href="#conclusion" class="nav-sidebar__link">Заключение</a></li>
+    </ul>
+  </nav>
+  <button class="nav-sidebar__toggle" aria-label="Открыть навигацию">☰</button>
+
+  <main>
+
+    <section class="chapter-hero" id="hero">
+      <div class="chapter-hero__number">10</div>
+      <div class="chapter-hero__content">
+        <h1 class="chapter-hero__title fade-in-up">Глубокое обучение</h1>
+        <p class="chapter-hero__subtitle fade-in-up">CNN, Transformer и механизм внимания — математика, стоящая за революцией ИИ</p>
+      </div>
+    </section>
+
+    <!-- Scrollytelling -->
+    <section class="scroll-section" id="scrollytelling">
+      <div class="scroll-section__visual">
+        <div class="viz-container" id="viz-scrollytelling"><svg id="svg-main"></svg></div>
+      </div>
+      <div class="scroll-section__narrative">
+        <div class="story-step" data-step="1">
+          <div class="story-step__content">
+            <h3>От перцептрона к AlexNet</h3>
+            <p>1958 — перцептрон Розенблатта. 1986 — обратное распространение ошибки. 2012 — AlexNet побеждает на ImageNet и начинается эра глубокого обучения.</p>
+          </div>
+        </div>
+        <div class="story-step" data-step="2">
+          <div class="story-step__content">
+            <h3>Свёрточные сети (CNN)</h3>
+            <p>Фильтры скользят по изображению, выявляя паттерны: границы, текстуры, формы. Каждый слой «видит» всё более абстрактные признаки.</p>
+          </div>
+        </div>
+        <div class="story-step" data-step="3">
+          <div class="story-step__content">
+            <h3>Рекуррентные сети (RNN)</h3>
+            <p>Для последовательностей: текст, речь, временные ряды. Скрытое состояние передаёт информацию между шагами — сеть «помнит» контекст.</p>
+          </div>
+        </div>
+        <div class="story-step" data-step="4">
+          <div class="story-step__content">
+            <h3>Механизм внимания</h3>
+            <p>Transformer: «Attention is All You Need» (2017). Каждый токен «смотрит» на все остальные. Внимание = взвешенная сумма значений, веса зависят от подобия запроса и ключей.</p>
+          </div>
+        </div>
+        <div class="story-step" data-step="5">
+          <div class="story-step__content">
+            <h3>Масштабирование</h3>
+            <p>Законы масштабирования: больше данных + больше параметров = лучше качество. GPT, DALL-E, AlphaFold — всё это глубокое обучение + огромный масштаб.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive: CNN Convolution Filter -->
+    <section class="section container" id="cnn">
+      <div class="content-wide">
+        <div class="interactive-widget fade-in-up">
+          <div class="interactive-widget__header">
+            <div>
+              <h3 class="interactive-widget__title">Свёрточный фильтр</h3>
+              <p class="interactive-widget__desc">Рисуйте на сетке 8×8 — фильтр 3×3 применяется в реальном времени. Выберите фильтр или задайте свой</p>
+            </div>
+            <span class="interactive-widget__badge">Интерактив</span>
+          </div>
+          <div class="cnn-grid-wrap">
+            <div>
+              <div class="cnn-grid-label">Вход (8×8)</div>
+              <div class="interactive-widget__canvas" id="cnn-input"></div>
+            </div>
+            <div class="cnn-arrow">→</div>
+            <div>
+              <div class="cnn-grid-label">Фильтр (3×3)</div>
+              <div id="cnn-filter"></div>
+            </div>
+            <div class="cnn-arrow">→</div>
+            <div>
+              <div class="cnn-grid-label">Результат (6×6)</div>
+              <div id="cnn-output"></div>
+            </div>
+          </div>
+          <div class="interactive-widget__controls">
+            <button class="widget-btn" id="btn-filter-edge">Границы</button>
+            <button class="widget-btn" id="btn-filter-sharpen">Резкость</button>
+            <button class="widget-btn" id="btn-filter-blur">Размытие</button>
+            <button class="widget-btn" id="btn-filter-emboss">Рельеф</button>
+            <button class="widget-btn" id="btn-cnn-clear">Очистить</button>
+            <button class="widget-btn" id="btn-cnn-example">Пример</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Math -->
+    <section class="section container" id="math">
+      <div class="content-narrow">
+        <h2 class="section-title fade-in-up">Математика Transformer</h2>
+
+        <div class="fade-in-up">
+          <p>Свёрточная операция: фильтр скользит по входу и вычисляет взвешенную сумму:</p>
+          <div class="math-block">
+            $$(I * K)[i,j] = \sum_{m}\sum_{n} I[i+m, j+n] \cdot K[m, n]$$
+          </div>
+
+          <p>Механизм внимания — ключевая формула Transformer. Для запросов $Q$, ключей $K$ и значений $V$:</p>
+          <div class="math-block math-block--highlighted">
+            <span class="math-block__label">Scaled Dot-Product Attention</span>
+            $$\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
+          </div>
+
+          <p>Softmax нормализует веса внимания — каждая строка матрицы весов суммируется к единице:</p>
+          <div class="math-block">
+            $$\text{softmax}(z_i) = \frac{e^{z_i}}{\sum_j e^{z_j}}$$
+          </div>
+        </div>
+
+        <div class="callout-box callout-box--info fade-in-up">
+          <p class="callout-box__title">Почему $\sqrt{d_k}$?</p>
+          <p>Делить на $\sqrt{d_k}$ нужно, чтобы при большой размерности ключей скалярное произведение не становилось слишком большим. Без нормализации softmax «схлопывается» — почти весь вес идёт на один элемент.</p>
+        </div>
+
+        <div class="fade-in-up">
+          <p>Multi-Head Attention позволяет модели «смотреть» на разные аспекты одновременно:</p>
+          <div class="math-block">
+            $$\text{MultiHead}(Q, K, V) = \text{Concat}(h_1, \ldots, h_h)W^O$$
+          </div>
+          <p>где $h_i = \text{Attention}(QW_i^Q, KW_i^K, VW_i^V)$ — каждая «голова» учит свой паттерн внимания.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive: Attention Matrix -->
+    <section class="section container" id="attention">
+      <div class="content-wide">
+        <div class="interactive-widget fade-in-up">
+          <div class="interactive-widget__header">
+            <div>
+              <h3 class="interactive-widget__title">Матрица внимания</h3>
+              <p class="interactive-widget__desc">Наведите на слово — увидите, на что «смотрит» модель. Кликните, чтобы зафиксировать выбор</p>
+            </div>
+            <span class="interactive-widget__badge">Интерактив</span>
+          </div>
+          <div class="attention-words" id="attention-words"></div>
+          <div class="interactive-widget__canvas" id="attention-canvas"></div>
+          <div class="interactive-widget__controls">
+            <button class="widget-btn" id="btn-attn-example1">Пример: перевод</button>
+            <button class="widget-btn" id="btn-attn-example2">Пример: кореференция</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Conclusion -->
+    <section class="section container" id="conclusion">
+      <div class="content-narrow">
+        <div class="conclusion fade-in-up">
+          <h2 class="conclusion__title">Математика — язык вселенной</h2>
+          <p class="conclusion__text">
+            Мы прошли путь от золотого сечения в природе до механизма внимания в нейросетях.
+            Математика — не абстрактная наука в вакууме. Она повсюду: в ракушке наутилуса,
+            в алгоритме, который рекомендует музыку, в модели, которая понимает язык.
+          </p>
+          <p class="conclusion__text">
+            Надеемся, этот курс показал, что математика — живая, красивая
+            и невероятно полезная. Продолжайте учиться!
+          </p>
+          <div class="conclusion__links">
+            <a href="https://www.3blue1brown.com/" class="conclusion__link" target="_blank" rel="noopener">3Blue1Brown</a>
+            <a href="https://colah.github.io/" class="conclusion__link" target="_blank" rel="noopener">Colah's Blog</a>
+            <a href="https://distill.pub/" class="conclusion__link" target="_blank" rel="noopener">Distill.pub</a>
+            <a href="https://jalammar.github.io/" class="conclusion__link" target="_blank" rel="noopener">Jay Alammar</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navigation -->
+    <section class="section" id="next">
+      <div class="container">
+        <nav class="chapter-nav">
+          <a href="../09-neural-networks/index.html" class="chapter-nav__link chapter-nav__link--prev">
+            <span class="chapter-nav__label">Назад</span>
+            <span class="chapter-nav__title">Глава 9: Нейронные сети</span>
+          </a>
+          <a href="../../index.html" class="chapter-nav__link chapter-nav__link--next">
+            <span class="chapter-nav__label">На главную</span>
+            <span class="chapter-nav__title">🏠 Оглавление</span>
+          </a>
+        </nav>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <div>
+        <p class="site-footer__title">Математика вокруг нас</p>
+        <p class="site-footer__text">Образовательный проект о математике в повседневной жизни и её роли в современных технологиях.</p>
+      </div>
+      <div class="site-footer__links">
+        <a href="../../index.html" class="site-footer__link">Оглавление</a>
+        <a href="https://github.com/mlnchkdv/math-around-us" class="site-footer__link" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14/dist/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14/dist/ScrollTrigger.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/contrib/auto-render.min.js" defer></script>
+  <script src="../../js/utils.js" defer></script>
+  <script src="../../js/core.js" defer></script>
+  <script src="viz.js" defer></script>
+</body>
+</html>

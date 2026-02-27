@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Математический анализ для ML — Математика вокруг нас</title>
+  <meta name="description" content="Производные и градиенты — как нейросети находят правильные веса через backpropagation.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+3:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.css">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/animations.css">
+  <link rel="stylesheet" href="../../css/components.css">
+
+  <style>
+    .chapter-hero { position: relative; min-height: 60vh; display: flex; align-items: center; justify-content: center; text-align: center; background: var(--gradient-hero); overflow: hidden; padding: var(--space-3xl) var(--space-md); }
+    .chapter-hero__number { font-family: var(--font-mono); font-size: clamp(4rem, 15vw, 10rem); font-weight: 700; color: var(--accent-blue); opacity: 0.12; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); line-height: 1; pointer-events: none; }
+    .chapter-hero__content { position: relative; z-index: 1; max-width: 700px; }
+    .chapter-hero__title { font-family: var(--font-heading); font-size: var(--fs-4xl); color: var(--text-primary); margin-bottom: var(--space-md); }
+    .chapter-hero__subtitle { font-size: var(--fs-lg); color: var(--text-secondary); line-height: 1.6; }
+    @media (min-width: 768px) { .chapter-hero__title { font-size: var(--fs-5xl); } }
+
+    .scroll-section { display: block; position: relative; }
+    .scroll-section__visual { width: 100%; }
+    .scroll-section__narrative { position: relative; z-index: 2; }
+    .scroll-section .story-step__content { background: var(--bg-card); box-shadow: var(--shadow-md); }
+    @media (min-width: 1024px) {
+      .scroll-section { display: flex; }
+      .scroll-section__visual { flex: 1 1 55%; height: auto; }
+      .scroll-section__narrative { flex: 1 1 45%; }
+    }
+
+    .draw-canvas-wrap { position: relative; cursor: crosshair; }
+    .draw-canvas-wrap canvas { width: 100%; height: 250px; background: var(--bg-secondary); border-radius: var(--radius-md); display: block; }
+
+    .chain-block {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 100px; height: 60px; border-radius: var(--radius-md);
+      font-family: var(--font-mono); font-size: var(--fs-sm);
+      color: var(--text-primary); border: 2px solid; text-align: center;
+    }
+    .chain-arrow { font-size: var(--fs-xl); color: var(--text-muted); margin: 0 var(--space-sm); }
+    .chain-values { font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--text-secondary); margin-top: var(--space-md); }
+    .chain-values strong { color: var(--accent-blue); }
+
+    .teaser { text-align: center; padding: var(--space-3xl) var(--space-md); }
+    .teaser__text { font-family: var(--font-heading); font-size: var(--fs-xl); color: var(--text-secondary); font-style: italic; max-width: 600px; margin: 0 auto var(--space-2xl); }
+  </style>
+</head>
+<body>
+
+  <div class="progress-bar" aria-hidden="true"><div class="progress-bar__fill"></div></div>
+
+  <nav class="nav-sidebar" id="sidebar">
+    <p class="nav-sidebar__title">Содержание</p>
+    <ul class="nav-sidebar__list">
+      <li><a href="#hero" class="nav-sidebar__link is-active">Введение</a></li>
+      <li><a href="#scrollytelling" class="nav-sidebar__link">Производные в действии</a></li>
+      <li><a href="#draw-derivative" class="nav-sidebar__link">Рисуем производную</a></li>
+      <li><a href="#math" class="nav-sidebar__link">Математика</a></li>
+      <li><a href="#chain-rule" class="nav-sidebar__link">Chain Rule</a></li>
+      <li><a href="#next" class="nav-sidebar__link">Далее</a></li>
+    </ul>
+  </nav>
+  <button class="nav-sidebar__toggle" aria-label="Открыть навигацию">☰</button>
+
+  <main>
+
+    <section class="chapter-hero" id="hero">
+      <div class="chapter-hero__number">07</div>
+      <div class="chapter-hero__content">
+        <h1 class="chapter-hero__title fade-in-up">Математический анализ для ML</h1>
+        <p class="chapter-hero__subtitle fade-in-up">Производные и градиенты — как нейросети находят правильные веса</p>
+      </div>
+    </section>
+
+    <!-- Scrollytelling -->
+    <section class="scroll-section" id="scrollytelling">
+      <div class="scroll-section__visual">
+        <div class="viz-container" id="viz-scrollytelling"><svg id="svg-main"></svg></div>
+      </div>
+      <div class="scroll-section__narrative">
+        <div class="story-step" data-step="1">
+          <div class="story-step__content">
+            <h3>Что такое производная</h3>
+            <p>Скорость автомобиля — это производная пути по времени. Производная показывает, как быстро меняется функция в каждой точке.</p>
+          </div>
+        </div>
+        <div class="story-step" data-step="2">
+          <div class="story-step__content">
+            <h3>Градиент</h3>
+            <p>Градиент — это многомерная производная. Он указывает направление наибольшего роста функции — как компас в горах, показывающий путь к вершине.</p>
+          </div>
+        </div>
+        <div class="story-step" data-step="3">
+          <div class="story-step__content">
+            <h3>Chain Rule</h3>
+            <p>Правило дифференцирования сложной функции: если $y = f(g(x))$, то $\frac{dy}{dx} = \frac{dy}{dg} \cdot \frac{dg}{dx}$. Градиент «протекает» через цепочку функций.</p>
+          </div>
+        </div>
+        <div class="story-step" data-step="4">
+          <div class="story-step__content">
+            <h3>Backpropagation</h3>
+            <p>Обратное распространение ошибки в нейросетях — это применение chain rule к каждому слою. Ошибка с выхода «течёт» назад, корректируя веса.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive: Draw derivative -->
+    <section class="section container" id="draw-derivative">
+      <div class="content-wide">
+        <div class="interactive-widget fade-in-up">
+          <div class="interactive-widget__header">
+            <div>
+              <h3 class="interactive-widget__title">Рисуем производную</h3>
+              <p class="interactive-widget__desc">Нарисуйте кривую мышью — внизу появится её производная в реальном времени</p>
+            </div>
+            <span class="interactive-widget__badge">Интерактив</span>
+          </div>
+          <div class="draw-canvas-wrap">
+            <canvas id="draw-canvas" width="800" height="250"></canvas>
+          </div>
+          <div class="interactive-widget__canvas" id="derivative-canvas" style="min-height:200px;"></div>
+          <div class="interactive-widget__controls">
+            <button class="widget-btn" id="btn-sine">Пример: синус</button>
+            <button class="widget-btn" id="btn-clear">Очистить</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Math -->
+    <section class="section container" id="math">
+      <div class="content-narrow">
+        <h2 class="section-title fade-in-up">Математика производных</h2>
+
+        <div class="fade-in-up">
+          <p>Производная функции $f(x)$ в точке — это предел отношения приращения функции к приращению аргумента:</p>
+          <div class="math-block">
+            $$f'(x) = \lim_{\Delta x \to 0} \frac{f(x + \Delta x) - f(x)}{\Delta x}$$
+          </div>
+
+          <p>Частная производная — производная по одной переменной при фиксированных остальных. Градиент — вектор из всех частных производных:</p>
+          <div class="math-block">
+            $$\nabla f = \left(\frac{\partial f}{\partial x_1}, \frac{\partial f}{\partial x_2}, \ldots, \frac{\partial f}{\partial x_n}\right)$$
+          </div>
+        </div>
+
+        <div class="callout-box callout-box--question fade-in-up">
+          <p class="callout-box__title">Подумайте</p>
+          <p>Если функция потерь $L = (y - \hat{y})^2$, а $\hat{y} = wx + b$, чему равна $\frac{\partial L}{\partial w}$? Попробуйте применить chain rule!</p>
+        </div>
+
+        <div class="fade-in-up">
+          <p>Ключевая формула обратного распространения — цепное правило для вложенных функций:</p>
+          <div class="math-block math-block--highlighted">
+            <span class="math-block__label">Chain Rule</span>
+            $$\frac{\partial L}{\partial w} = \frac{\partial L}{\partial y} \cdot \frac{\partial y}{\partial w}$$
+          </div>
+          <p>Именно эта формула позволяет нейросетям обучаться: градиент ошибки «течёт» от выхода ко входу через все слои, корректируя каждый вес.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive: Chain Rule -->
+    <section class="section container" id="chain-rule">
+      <div class="content-wide">
+        <div class="interactive-widget fade-in-up">
+          <div class="interactive-widget__header">
+            <div>
+              <h3 class="interactive-widget__title">Chain Rule визуализация</h3>
+              <p class="interactive-widget__desc">Меняйте входное значение x и наблюдайте, как значения и градиенты проходят через цепочку функций</p>
+            </div>
+            <span class="interactive-widget__badge">Интерактив</span>
+          </div>
+          <div class="interactive-widget__canvas" id="chain-canvas" style="min-height:220px;"></div>
+          <div class="interactive-widget__controls">
+            <div class="widget-slider">
+              <label class="widget-slider__label" for="chain-x">x =</label>
+              <input type="range" id="chain-x" min="-3" max="3" value="1" step="0.1">
+              <span class="widget-slider__value" id="chain-x-value">1.0</span>
+            </div>
+          </div>
+          <div class="chain-values" id="chain-values"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navigation -->
+    <section class="section" id="next">
+      <div class="teaser">
+        <p class="teaser__text fade-in-up">В следующей главе мы применим всю эту математику на практике — построим первые модели машинного обучения…</p>
+      </div>
+      <div class="container">
+        <nav class="chapter-nav">
+          <a href="../06-linear-algebra/index.html" class="chapter-nav__link chapter-nav__link--prev">
+            <span class="chapter-nav__label">Назад</span>
+            <span class="chapter-nav__title">Глава 6: Линейная алгебра</span>
+          </a>
+          <a href="../08-intro-ml/index.html" class="chapter-nav__link chapter-nav__link--next">
+            <span class="chapter-nav__label">Далее</span>
+            <span class="chapter-nav__title">Глава 8: Введение в ML</span>
+          </a>
+        </nav>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <div>
+        <p class="site-footer__title">Математика вокруг нас</p>
+        <p class="site-footer__text">Образовательный проект о математике в повседневной жизни и её роли в современных технологиях.</p>
+      </div>
+      <div class="site-footer__links">
+        <a href="../../index.html" class="site-footer__link">Оглавление</a>
+        <a href="https://github.com/mlnchkdv/math-around-us" class="site-footer__link" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14/dist/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14/dist/ScrollTrigger.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/contrib/auto-render.min.js" defer></script>
+  <script src="../../js/utils.js" defer></script>
+  <script src="../../js/core.js" defer></script>
+  <script src="viz.js" defer></script>
+</body>
+</html>

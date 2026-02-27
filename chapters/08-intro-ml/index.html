@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Введение в машинное обучение — Математика вокруг нас</title>
+  <meta name="description" content="Как научить компьютер учиться на данных: линейная регрессия, классификация и функция потерь.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+3:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.css">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/animations.css">
+  <link rel="stylesheet" href="../../css/components.css">
+
+  <style>
+    .chapter-hero { position: relative; min-height: 60vh; display: flex; align-items: center; justify-content: center; text-align: center; background: var(--gradient-hero); overflow: hidden; padding: var(--space-3xl) var(--space-md); }
+    .chapter-hero__number { font-family: var(--font-mono); font-size: clamp(4rem, 15vw, 10rem); font-weight: 700; color: var(--accent-emerald); opacity: 0.12; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); line-height: 1; pointer-events: none; }
+    .chapter-hero__content { position: relative; z-index: 1; max-width: 700px; }
+    .chapter-hero__title { font-family: var(--font-heading); font-size: var(--fs-4xl); color: var(--text-primary); margin-bottom: var(--space-md); }
+    .chapter-hero__subtitle { font-size: var(--fs-lg); color: var(--text-secondary); line-height: 1.6; }
+    @media (min-width: 768px) { .chapter-hero__title { font-size: var(--fs-5xl); } }
+
+    .scroll-section { display: block; position: relative; }
+    .scroll-section__visual { width: 100%; }
+    .scroll-section__narrative { position: relative; z-index: 2; }
+    .scroll-section .story-step__content { background: var(--bg-card); box-shadow: var(--shadow-md); }
+    @media (min-width: 1024px) {
+      .scroll-section { display: flex; }
+      .scroll-section__visual { flex: 1 1 55%; height: auto; }
+      .scroll-section__narrative { flex: 1 1 45%; }
+    }
+
+    .regression-info {
+      font-family: var(--font-mono); font-size: var(--fs-sm);
+      color: var(--text-secondary); margin-top: var(--space-md);
+    }
+    .regression-info strong { color: var(--accent-emerald); }
+
+    .teaser { text-align: center; padding: var(--space-3xl) var(--space-md); }
+    .teaser__text { font-family: var(--font-heading); font-size: var(--fs-xl); color: var(--text-secondary); font-style: italic; max-width: 600px; margin: 0 auto var(--space-2xl); }
+  </style>
+</head>
+<body>
+
+  <div class="progress-bar" aria-hidden="true"><div class="progress-bar__fill"></div></div>
+
+  <nav class="nav-sidebar" id="sidebar">
+    <p class="nav-sidebar__title">Содержание</p>
+    <ul class="nav-sidebar__list">
+      <li><a href="#hero" class="nav-sidebar__link is-active">Введение</a></li>
+      <li><a href="#scrollytelling" class="nav-sidebar__link">Что такое ML</a></li>
+      <li><a href="#regression" class="nav-sidebar__link">Линейная регрессия</a></li>
+      <li><a href="#math" class="nav-sidebar__link">Математика</a></li>
+      <li><a href="#classification" class="nav-sidebar__link">Классификация</a></li>
+      <li><a href="#next" class="nav-sidebar__link">Далее</a></li>
+    </ul>
+  </nav>
+  <button class="nav-sidebar__toggle" aria-label="Открыть навигацию">☰</button>
+
+  <main>
+
+    <section class="chapter-hero" id="hero">
+      <div class="chapter-hero__number">08</div>
+      <div class="chapter-hero__content">
+        <h1 class="chapter-hero__title fade-in-up">Введение в машинное обучение</h1>
+        <p class="chapter-hero__subtitle fade-in-up">Как научить компьютер учиться на данных — без явного программирования</p>
+      </div>
+    </section>
+
+    <!-- Scrollytelling -->
+    <section class="scroll-section" id="scrollytelling">
+      <div class="scroll-section__visual">
+        <div class="viz-container" id="viz-scrollytelling"><svg id="svg-main"></svg></div>
+      </div>
+      <div class="scroll-section__narrative">
+        <div class="story-step" data-step="1">
+          <div class="story-step__content">
+            <h3>Новая парадигма</h3>
+            <p>Традиционное программирование: вы пишете правила. Машинное обучение: вы даёте данные и ответы — компьютер сам находит правила.</p>
+          </div>
+        </div>
+        <div class="story-step" data-step="2">
+          <div class="story-step__content">
+            <h3>Линейная регрессия</h3>
+            <p>Простейший ML: найти прямую, которая лучше всего проходит через точки данных. Прямая «подстраивается» под данные.</p>
+          </div>
+        </div>
+        <div class="story-step" data-step="3">
+          <div class="story-step__content">
+            <h3>Функция потерь</h3>
+            <p>MSE = $\frac{1}{n}\sum(y_i - \hat{y}_i)^2$ — мера ошибки. Чем меньше — тем лучше модель описывает данные. Обучение = минимизация потерь.</p>
+          </div>
+        </div>
+        <div class="story-step" data-step="4">
+          <div class="story-step__content">
+            <h3>Классификация</h3>
+            <p>Не только числа: ML может предсказывать классы. Логистическая регрессия, SVM, деревья решений, нейросети — все решают задачу классификации.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive: Linear Regression -->
+    <section class="section container" id="regression">
+      <div class="content-wide">
+        <div class="interactive-widget fade-in-up">
+          <div class="interactive-widget__header">
+            <div>
+              <h3 class="interactive-widget__title">Линейная регрессия</h3>
+              <p class="interactive-widget__desc">Кликайте на поле, чтобы поставить точки — прямая обновляется в реальном времени (метод наименьших квадратов)</p>
+            </div>
+            <span class="interactive-widget__badge">Интерактив</span>
+          </div>
+          <div class="interactive-widget__canvas" id="regression-canvas"></div>
+          <div class="interactive-widget__controls">
+            <button class="widget-btn" id="btn-example-reg">Пример: оценки vs учёба</button>
+            <button class="widget-btn" id="btn-clear-reg">Очистить</button>
+          </div>
+          <div class="regression-info" id="regression-info">Поставьте хотя бы 2 точки</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Math -->
+    <section class="section container" id="math">
+      <div class="content-narrow">
+        <h2 class="section-title fade-in-up">Математика ML</h2>
+
+        <div class="fade-in-up">
+          <p>Линейная модель предсказывает значение как линейную функцию признака:</p>
+          <div class="math-block">
+            $$\hat{y} = wx + b$$
+          </div>
+
+          <p>Функция потерь MSE (среднеквадратичная ошибка) измеряет качество модели:</p>
+          <div class="math-block math-block--highlighted">
+            <span class="math-block__label">Функция потерь</span>
+            $$\text{MSE} = \frac{1}{n}\sum_{i=1}^{n}(y_i - \hat{y}_i)^2$$
+          </div>
+
+          <p>Оптимальные параметры $w$ и $b$ минимизируют MSE. Для линейной регрессии есть аналитическое решение:</p>
+          <div class="math-block">
+            $$w = \frac{\sum(x_i - \bar{x})(y_i - \bar{y})}{\sum(x_i - \bar{x})^2}, \quad b = \bar{y} - w\bar{x}$$
+          </div>
+        </div>
+
+        <div class="callout-box callout-box--info fade-in-up">
+          <p class="callout-box__title">Интересный факт</p>
+          <p>Метод наименьших квадратов изобрели Лежандр и Гаусс более 200 лет назад. Тот же принцип лежит в основе современных нейросетей — только вместо прямой подбирается сложная нелинейная функция.</p>
+        </div>
+
+        <div class="fade-in-up">
+          <p>Для классификации используется логистическая (сигмоидная) функция, которая «сжимает» выход в диапазон [0, 1]:</p>
+          <div class="math-block">
+            $$\sigma(z) = \frac{1}{1 + e^{-z}}$$
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive: Classification -->
+    <section class="section container" id="classification">
+      <div class="content-wide">
+        <div class="interactive-widget fade-in-up">
+          <div class="interactive-widget__header">
+            <div>
+              <h3 class="interactive-widget__title">Границы классификации</h3>
+              <p class="interactive-widget__desc">ЛКМ — класс 1 (синий), ПКМ — класс 2 (оранжевый). Разделяющая линия обновляется автоматически</p>
+            </div>
+            <span class="interactive-widget__badge">Интерактив</span>
+          </div>
+          <div class="interactive-widget__canvas" id="classify-canvas"></div>
+          <div class="interactive-widget__controls">
+            <button class="widget-btn" id="btn-example-linear">Линейно разделимые</button>
+            <button class="widget-btn" id="btn-example-nonlinear">Нелинейные</button>
+            <button class="widget-btn" id="btn-clear-cls">Очистить</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navigation -->
+    <section class="section" id="next">
+      <div class="teaser">
+        <p class="teaser__text fade-in-up">В следующей главе мы построим настоящую нейронную сеть — от перцептрона до глубокого обучения…</p>
+      </div>
+      <div class="container">
+        <nav class="chapter-nav">
+          <a href="../07-calculus-for-ml/index.html" class="chapter-nav__link chapter-nav__link--prev">
+            <span class="chapter-nav__label">Назад</span>
+            <span class="chapter-nav__title">Глава 7: Мат. анализ для ML</span>
+          </a>
+          <a href="../09-neural-networks/index.html" class="chapter-nav__link chapter-nav__link--next">
+            <span class="chapter-nav__label">Далее</span>
+            <span class="chapter-nav__title">Глава 9: Нейронные сети</span>
+          </a>
+        </nav>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <div>
+        <p class="site-footer__title">Математика вокруг нас</p>
+        <p class="site-footer__text">Образовательный проект о математике в повседневной жизни и её роли в современных технологиях.</p>
+      </div>
+      <div class="site-footer__links">
+        <a href="../../index.html" class="site-footer__link">Оглавление</a>
+        <a href="https://github.com/mlnchkdv/math-around-us" class="site-footer__link" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14/dist/gsap.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14/dist/ScrollTrigger.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/contrib/auto-render.min.js" defer></script>
+  <script src="../../js/utils.js" defer></script>
+  <script src="../../js/core.js" defer></script>
+  <script src="viz.js" defer></script>
+</body>
+</html>
